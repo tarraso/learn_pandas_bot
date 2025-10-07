@@ -114,6 +114,7 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 
 # Ngrok URL for Mini App
 NGROK_URL = os.environ.get('NGROK_URL', 'http://localhost:3000')
+WEBAPP_URL = os.environ.get('WEBAPP_URL', NGROK_URL)  # Mini App URL for Telegram
 
 # Logging
 LOGGING = {

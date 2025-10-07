@@ -1,37 +1,57 @@
 import { useState } from 'react'
 import Editor from '@monaco-editor/react'
-import axios from 'axios'
+import { usePyodide } from '../hooks/usePyodide'
 import './CodeChallenge.css'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000/api'
-
 function CodeChallenge({ userId }) {
-  const [code, setCode] = useState('import pandas as pd\n\n# Напишите ваш код здесь\n')
+  const [code, setCode] = useState('import pandas as pd\nimport numpy as np\n\n# Напишите ваш код здесь\ndf = pd.DataFrame({\n    "A": [1, 2, 3],\n    "B": [4, 5, 6]\n})\n\nprint(df)')
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
+
+  const { pyodide, loading: pyodideLoading, error: pyodideError, loadingPackages, runPython } = usePyodide()
 
   const handleRun = async () => {
     setLoading(true)
     setResult(null)
 
     try {
-      const response = await axios.post(`${API_BASE}/code/execute/`, {
-        code
-      })
-      setResult(response.data)
-    } catch (error) {
-      setResult({
-        success: false,
-        error: error.response?.data?.error || error.response?.data?.code?.[0] || 'Ошибка выполнения кода'
-      })
+      const result = await runPython(code)
+      setResult(result)
     } finally {
       setLoading(false)
     }
   }
 
+  const getButtonText = () => {
+    if (loading) return '⏳ Выполняется...'
+    if (loadingPackages) return '📦 Загрузка pandas...'
+    return '▶️ Запустить'
+  }
+
+  const isRunDisabled = loading || pyodideLoading || pyodideError
+
   return (
     <div className="code-challenge">
       <h2>💻 Практика кода</h2>
+
+      {/* Pyodide loading status */}
+      {pyodideLoading && (
+        <div className="pyodide-status loading">
+          ⏳ Загрузка Python окружения... (это может занять ~30 секунд при первом запуске)
+        </div>
+      )}
+
+      {pyodideError && (
+        <div className="pyodide-status error">
+          ❌ {pyodideError}
+        </div>
+      )}
+
+      {pyodide && !pyodideLoading && (
+        <div className="pyodide-status ready">
+          ✅ Python готов к работе (выполняется в браузере)
+        </div>
+      )}
 
       <div className="editor-container">
         <Editor
@@ -52,9 +72,9 @@ function CodeChallenge({ userId }) {
       <button
         className="run-button"
         onClick={handleRun}
-        disabled={loading}
+        disabled={isRunDisabled}
       >
-        {loading ? '⏳ Выполняется...' : '▶️ Запустить'}
+        {getButtonText()}
       </button>
 
       {result && (

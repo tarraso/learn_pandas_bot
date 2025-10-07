@@ -3,8 +3,72 @@
   margin: 0 auto;
 }
 
-.code-challenge h2 {
+.code-challenge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.code-challenge-header h2 {
+  margin: 0;
+}
+
+.execution-mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+  padding: 0.25rem;
+  border-radius: 8px;
+}
+
+.mode-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--tg-theme-text-color, #000);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.mode-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.mode-button.active {
+  background: var(--tg-theme-button-color, #2481cc);
+  color: var(--tg-theme-button-text-color, #ffffff);
+  font-weight: 500;
+}
+
+.pyodide-status {
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.pyodide-status.loading {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+}
+
+.pyodide-status.error {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.pyodide-status.ready {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
 }
 
 .editor-container {

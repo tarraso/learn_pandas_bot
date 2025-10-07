@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import WebApp from '@twa-dev/sdk'
 import QuestionList from './components/QuestionList'
 import Documentation from './components/Documentation'
+import CodeChallenge from './components/CodeChallenge'
 import './App.css'
 
 function App() {
-  const [view, setView] = useState('menu') // menu, questions, docs
+  const [view, setView] = useState('menu') // menu, questions, docs, code
   const [user, setUser] = useState(null)
   const [currentTopic, setCurrentTopic] = useState(null)
 
@@ -71,6 +72,12 @@ function App() {
             >
               📝 Вопросы
             </button>
+            <button
+              className="menu-button"
+              onClick={() => setView('code')}
+            >
+              💻 Практика кода
+            </button>
           </div>
         )}
 
@@ -89,6 +96,10 @@ function App() {
             userId={user?.id}
             topic={currentTopic}
           />
+        )}
+
+        {view === 'code' && (
+          <CodeChallenge userId={user?.id} />
         )}
       </main>
     </div>
