@@ -17,6 +17,7 @@ pandas = "^2.2.0"
 gunicorn = "23.0.0"
 django-cors-headers = "^4.9.0"
 whitenoise = "^6.8.2"
+djangorestframework = "^3.15.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.5"

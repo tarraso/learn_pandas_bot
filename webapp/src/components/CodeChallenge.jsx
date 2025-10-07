@@ -15,15 +15,14 @@ function CodeChallenge({ userId }) {
     setResult(null)
 
     try {
-      const response = await axios.post(`${API_BASE}/run-code/`, {
-        code,
-        user_id: userId
+      const response = await axios.post(`${API_BASE}/code/execute/`, {
+        code
       })
       setResult(response.data)
     } catch (error) {
       setResult({
         success: false,
-        error: error.response?.data?.error || 'Ошибка выполнения кода'
+        error: error.response?.data?.error || error.response?.data?.code?.[0] || 'Ошибка выполнения кода'
       })
     } finally {
       setLoading(false)

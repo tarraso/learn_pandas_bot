@@ -1,10 +1,19 @@
 """API URLs."""
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views_drf
+
+# Create router for ViewSets
+router = DefaultRouter()
+router.register(r'topics', views_drf.TopicViewSet, basename='topic')
 
 urlpatterns = [
-    path('topics/', views.topics_list, name='api_topics'),
-    path('next-question/', views.next_question_view, name='api_next_question'),
-    path('answer-question/', views.answer_question_view, name='api_answer_question'),
-    path('run-code/', views.run_code_view, name='api_run_code'),
+    # Router URLs (includes /topics/ and /topics/<id>/)
+    path('', include(router.urls)),
+
+    # Custom API views
+    path('questions/next/', views_drf.QuestionAPIView.as_view(), name='next_question'),
+    path('questions/answer/', views_drf.AnswerQuestionAPIView.as_view(), name='answer_question'),
+    path('code/execute/', views_drf.CodeExecutionAPIView.as_view(), name='execute_code'),
+    path('users/stats/', views_drf.UserStatsAPIView.as_view(), name='user_stats'),
 ]

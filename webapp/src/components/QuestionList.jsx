@@ -16,7 +16,7 @@ function QuestionList({ userId, topic }) {
     setSelectedOption(null)
 
     try {
-      const response = await axios.get(`${API_BASE}/next-question/`, {
+      const response = await axios.get(`${API_BASE}/questions/next/`, {
         params: { user_id: userId, topic_id: topic?.id }
       })
       setQuestion(response.data)
@@ -38,7 +38,7 @@ function QuestionList({ userId, topic }) {
     setAnswered(true)
 
     try {
-      await axios.post(`${API_BASE}/answer-question/`, {
+      await axios.post(`${API_BASE}/questions/answer/`, {
         user_id: userId,
         question_id: question.id,
         answer: option
@@ -74,25 +74,29 @@ function QuestionList({ userId, topic }) {
       )}
 
       <div className="options">
-        {question.options.map(([letter, text]) => (
-          <button
-            key={letter}
-            className={`option-button ${
-              answered
-                ? letter === question.correct_option
-                  ? 'correct'
-                  : letter === selectedOption
-                  ? 'incorrect'
+        {question.options.map((option) => {
+          const letter = option.letter || option[0];
+          const text = option.text || option[1];
+          return (
+            <button
+              key={letter}
+              className={`option-button ${
+                answered
+                  ? letter === question.correct_option
+                    ? 'correct'
+                    : letter === selectedOption
+                    ? 'incorrect'
+                    : ''
                   : ''
-                : ''
-            }`}
-            onClick={() => !answered && handleAnswer(letter)}
-            disabled={answered}
-          >
-            <span className="option-letter">{letter}</span>
-            <span className="option-text">{text}</span>
-          </button>
-        ))}
+              }`}
+              onClick={() => !answered && handleAnswer(letter)}
+              disabled={answered}
+            >
+              <span className="option-letter">{letter}</span>
+              <span className="option-text">{text}</span>
+            </button>
+          );
+        })}
       </div>
 
       {answered && (
