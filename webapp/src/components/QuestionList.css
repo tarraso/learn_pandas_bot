@@ -1,0 +1,148 @@
+.question-list {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.question-loading,
+.question-empty {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+.question-header {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.topic-badge,
+.difficulty-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.topic-badge {
+  background: var(--tg-theme-button-color, #2481cc);
+  color: var(--tg-theme-button-text-color, #ffffff);
+}
+
+.difficulty-badge {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.question-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.code-example {
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.code-example code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.option-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.option-button:hover:not(:disabled) {
+  border-color: var(--tg-theme-button-color, #2481cc);
+  background: #f8f9fa;
+}
+
+.option-button:disabled {
+  cursor: default;
+}
+
+.option-button.correct {
+  border-color: #28a745;
+  background: #d4edda;
+}
+
+.option-button.incorrect {
+  border-color: #dc3545;
+  background: #f8d7da;
+}
+
+.option-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--tg-theme-button-color, #2481cc);
+  color: white;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.option-button.correct .option-letter {
+  background: #28a745;
+}
+
+.option-button.incorrect .option-letter {
+  background: #dc3545;
+}
+
+.option-text {
+  flex: 1;
+}
+
+.explanation {
+  background: #f8f9fa;
+  border-left: 4px solid var(--tg-theme-button-color, #2481cc);
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.explanation h3 {
+  margin-bottom: 0.5rem;
+}
+
+.explanation a {
+  color: var(--tg-theme-link-color, #2481cc);
+  text-decoration: none;
+  margin-top: 0.5rem;
+  display: inline-block;
+}
+
+.next-button {
+  width: 100%;
+  background: var(--tg-theme-button-color, #2481cc);
+  color: var(--tg-theme-button-text-color, #ffffff);
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+}

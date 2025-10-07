@@ -29,12 +29,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'questions',
     'bot',
+    'api',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -108,6 +111,9 @@ TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 # OpenAI API Key (for generating explanations if needed)
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 
+# Ngrok URL for Mini App
+NGROK_URL = os.environ.get('NGROK_URL', 'http://localhost:3000')
+
 # Logging
 LOGGING = {
     'version': 1,
@@ -122,3 +128,11 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+# CORS settings for Mini App
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    NGROK_URL,
+]
+CORS_ALLOW_CREDENTIALS = True

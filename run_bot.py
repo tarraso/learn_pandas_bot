@@ -5,7 +5,8 @@ from telegram import (
     Update,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    BotCommand
+    BotCommand,
+    WebAppInfo
 )
 from telegram.ext import (
     Application,
@@ -52,13 +53,14 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 Этот бот поможет вам освоить библиотеку Pandas для анализа данных в Python.
 
 📚 **Основные команды:**
+• /webapp - интерактивное обучение (Mini App)
 • /next - получить следующий вопрос
 • /topic - выбрать тему для изучения
 • /difficulty - выбрать уровень сложности
 • /stats - посмотреть вашу статистику
 • /help - получить справку
 
-🎯 Начните с команды /next или выберите тему с помощью /topic!
+🎯 Начните с команды /webapp для интерактивного обучения или /next для быстрого тестирования!
 """
 
     if created:
@@ -73,6 +75,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 📚 **Доступные команды:**
 
 /start - Запустить бота
+/webapp - Открыть интерактивное обучение (Mini App)
 /next - Получить следующий вопрос
 /topic - Выбрать тему для изучения
 /difficulty - Установить уровень сложности (beginner/intermediate/advanced)
@@ -81,19 +84,22 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 💡 **Как использовать бота:**
 
+**Вариант 1: Интерактивное обучение (рекомендуется)**
+1. Используйте /webapp для открытия Mini App
+2. В Mini App вы получите доступ к документации и интерактивным вопросам
+
+**Вариант 2: Быстрое тестирование**
 1. Выберите тему с помощью /topic
 2. Установите уровень сложности с помощью /difficulty
 3. Получайте вопросы с помощью /next
-4. Отвечайте на вопросы, нажимая на кнопки или отправляя текст
+4. Отвечайте на вопросы, нажимая на кнопки
 5. Отслеживайте свой прогресс с помощью /stats
 
 🐼 **О боте:**
 
-Бот содержит вопросы разных типов:
-• Multiple Choice - выберите правильный ответ из вариантов
-• Code Challenge - напишите код для решения задачи
-• Explanation - объясните концепцию
-• Fill in the Blank - заполните пропуск
+Бот предлагает два режима обучения:
+• **Mini App** - интерактивные вопросы с документацией по темам
+• **Текстовый режим** - быстрые вопросы с выбором ответа
 
 Удачи в изучении Pandas! 🚀
 """
@@ -388,10 +394,41 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(message, parse_mode='Markdown')
 
 
+async def webapp_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Launch Mini App for interactive learning."""
+    user = update.effective_user
+    if not user:
+        return
+
+    telegram_user, _ = await get_or_create_user(user)
+
+    # ngrok URL for Mini App
+    webapp_url = getattr(settings, 'NGROK_URL', 'http://localhost:3000')
+
+    keyboard = [[
+        InlineKeyboardButton(
+            "🚀 Открыть интерактивное обучение",
+            web_app=WebAppInfo(url=webapp_url)
+        )
+    ]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    message = (
+        "🎯 **Интерактивное обучение**\n\n"
+        "Откройте Mini App для доступа к:\n"
+        "• 📚 Документации по темам\n"
+        "• 📝 Интерактивным вопросам с пояснениями\n\n"
+        "Нажмите кнопку ниже, чтобы начать! 👇"
+    )
+
+    await update.message.reply_text(message, parse_mode='Markdown', reply_markup=reply_markup)
+
+
 async def setup_bot_commands(application):
     """Set up bot commands for the menu."""
     await application.bot.set_my_commands([
         BotCommand("start", "Запустить бота"),
+        BotCommand("webapp", "Интерактивное обучение"),
         BotCommand("next", "Следующий вопрос"),
         BotCommand("topic", "Выбрать тему"),
         BotCommand("difficulty", "Установить сложность"),
@@ -419,6 +456,7 @@ def main():
     # Add handlers
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("webapp", webapp_command))
     application.add_handler(CommandHandler("next", next_question))
     application.add_handler(CommandHandler("topic", topic_command))
     application.add_handler(CommandHandler("difficulty", difficulty_command))

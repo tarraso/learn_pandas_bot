@@ -1,0 +1,90 @@
+.documentation {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.docs-loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+.topics-list h2 {
+  margin-bottom: 1rem;
+}
+
+.topic-card {
+  width: 100%;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.topic-card:hover {
+  border-color: var(--tg-theme-button-color, #2481cc);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.topic-card h3 {
+  color: var(--tg-theme-text-color, #000);
+  margin-bottom: 0.5rem;
+}
+
+.topic-card p {
+  color: var(--tg-theme-hint-color, #999);
+  font-size: 0.9rem;
+}
+
+.topic-detail h2 {
+  margin-bottom: 1.5rem;
+}
+
+.documentation-content {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.no-docs {
+  text-align: center;
+  color: var(--tg-theme-hint-color, #999);
+  padding: 2rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.primary-button,
+.secondary-button {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.primary-button {
+  background: var(--tg-theme-button-color, #2481cc);
+  color: var(--tg-theme-button-text-color, #ffffff);
+}
+
+.secondary-button {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.primary-button:active,
+.secondary-button:active {
+  opacity: 0.8;
+}
