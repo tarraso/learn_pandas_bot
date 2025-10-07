@@ -1,0 +1,70 @@
+# Multi-stage Dockerfile for production
+# Stage 1: Build React frontend
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /webapp
+
+# Copy package files
+COPY webapp/package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy webapp source
+COPY webapp/ ./
+
+# Build for production
+RUN npm run build
+
+# Stage 2: Python application
+FROM python:3.13-slim AS backend
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DJANGO_ENV=production
+
+# Set work directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN pip install --no-cache-dir poetry
+
+# Copy Poetry files
+COPY pyproject.toml poetry.lock* ./
+
+# Install Python dependencies (production only)
+RUN poetry config virtualenvs.create false && \
+    poetry install --without dev --no-interaction --no-ansi
+
+# Copy project
+COPY . .
+
+# Copy built frontend from previous stage
+COPY --from=frontend-builder /webapp/dist /app/staticfiles/webapp
+
+# Create logs directory
+RUN mkdir -p /app/logs
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+# Create non-root user
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+USER appuser
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')" || exit 1
+
+# Default command (can be overridden)
+CMD ["gunicorn", "pandas_bot.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "60"]

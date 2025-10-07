@@ -402,8 +402,8 @@ async def webapp_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     telegram_user, _ = await get_or_create_user(user)
 
-    # ngrok URL for Mini App
-    webapp_url = getattr(settings, 'NGROK_URL', 'http://localhost:3000')
+    # Web App URL for Mini App
+    webapp_url = getattr(settings, 'WEBAPP_URL', 'http://localhost:3000')
 
     keyboard = [[
         InlineKeyboardButton(
