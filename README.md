@@ -2,6 +2,13 @@
 
 A Telegram bot designed to help users learn Python Pandas library through interactive questions and challenges.
 
+## 📚 Documentation
+
+- **[DEPLOY.md](DEPLOY.md)** - Full production deployment guide
+- **[ALPHAVPS_SETUP.md](ALPHAVPS_SETUP.md)** - AlphaVPS specific setup (budget option)
+- **[MEMORY_OPTIMIZATION.md](MEMORY_OPTIMIZATION.md)** - Running on 512MB-1GB RAM VPS
+- **[docs/CHOOSING_VPS.md](docs/CHOOSING_VPS.md)** - How to choose VPS (KVM vs OpenVZ explained)
+
 ## Features
 
 - 📚 **Multiple Question Types**: Multiple choice, code challenges, explanations, and fill-in-the-blank
