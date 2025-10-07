@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "learn-pandas-bot"
+version = "0.1.0"
+description = "Telegram bot for learning Python pandas"
+authors = ["Taras Volchenko <dumb@taras.rocks>"]
+readme = "README.md"
+packages = [{include = "questions"}, {include = "bot"}, {include = "pandas_bot"}]
+
+[tool.poetry.dependencies]
+python = ">=3.13,<4.0"
+Django = "5.2"
+python-telegram-bot = "^22.5"
+dj-database-url = "2.3.0"
+psycopg2-binary = "2.9.10"
+python-dotenv = "1.1.0"
+pandas = "^2.2.0"
+gunicorn = "23.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "8.3.5"
+pytest-django = "4.11.1"
+pytest-asyncio = "0.26.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
