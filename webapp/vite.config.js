@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
 
   // Base path for assets
-  base: mode === 'production' ? '/static/webapp/' : '/',
+  base: '/',
 
   // Build configuration
   build: {
