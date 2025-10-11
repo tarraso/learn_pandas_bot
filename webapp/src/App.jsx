@@ -3,10 +3,11 @@ import WebApp from '@twa-dev/sdk'
 import QuestionList from './components/QuestionList'
 import Documentation from './components/Documentation'
 import CodeChallenge from './components/CodeChallenge'
+import PythonTask from './components/PythonTask'
 import './App.css'
 
 function App() {
-  const [view, setView] = useState('menu') // menu, questions, docs, code
+  const [view, setView] = useState('menu') // menu, questions, docs, code, task
   const [user, setUser] = useState(null)
   const [currentTopic, setCurrentTopic] = useState(null)
 
@@ -27,6 +28,13 @@ function App() {
         first_name: tgUser.first_name,
         username: tgUser.username
       })
+    }
+
+    // Check if we should start with task view (from bot deep link)
+    const params = new URLSearchParams(window.location.search)
+    const initialView = params.get('view')
+    if (initialView === 'task') {
+      setView('task')
     }
 
     // Setup back button
@@ -74,9 +82,15 @@ function App() {
             </button>
             <button
               className="menu-button"
+              onClick={() => setView('task')}
+            >
+              🎯 Задачи с проверкой
+            </button>
+            <button
+              className="menu-button"
               onClick={() => setView('code')}
             >
-              💻 Практика кода
+              💻 Свободная практика
             </button>
           </div>
         )}
@@ -96,6 +110,10 @@ function App() {
             userId={user?.id}
             topic={currentTopic}
           />
+        )}
+
+        {view === 'task' && (
+          <PythonTask userId={user?.id} />
         )}
 
         {view === 'code' && (

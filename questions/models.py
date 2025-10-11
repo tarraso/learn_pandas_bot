@@ -53,6 +53,15 @@ class Question(models.Model):
     # For code challenges and fill in the blank
     correct_answer = models.TextField(blank=True, help_text="Correct answer for code/fill blank questions")
 
+    # For code challenges - test cases and starter code
+    starter_code = models.TextField(blank=True, help_text="Initial code template for code challenges")
+    test_cases = models.JSONField(
+        blank=True,
+        null=True,
+        help_text="JSON array of test cases with 'input', 'expected_output' for validation"
+    )
+    hint = models.TextField(blank=True, help_text="Optional hint for code challenges")
+
     # Explanation
     explanation = models.TextField(help_text="Explanation of the correct answer")
     documentation_link = models.URLField(blank=True, help_text="Link to pandas documentation")

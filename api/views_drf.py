@@ -1,10 +1,8 @@
 """DRF API views for Telegram Mini App."""
 import io
-import sys
 from contextlib import redirect_stdout, redirect_stderr
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -17,6 +15,9 @@ from .serializers import (
     CodeExecutionSerializer,
     CodeExecutionResponseSerializer,
     UserStatsSerializer,
+    CodeTaskSerializer,
+    CodeSubmissionSerializer,
+    CodeSubmissionResponseSerializer,
 )
 
 
@@ -288,3 +289,208 @@ class UserStatsAPIView(APIView):
         serializer = UserStatsSerializer(data=stats_data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data)
+
+
+class CodeTaskAPIView(APIView):
+    """
+    API view for getting code challenge tasks.
+    """
+
+    def get(self, request):
+        """Get next code challenge for user."""
+        user_id = request.query_params.get('user_id')
+        topic_id = request.query_params.get('topic_id')
+
+        if not user_id:
+            return Response(
+                {'error': 'user_id parameter is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get user
+        try:
+            user = TelegramUser.objects.select_related('current_topic').get(telegram_id=user_id)
+        except TelegramUser.DoesNotExist:
+            return Response(
+                {'error': 'User not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Get topic
+        topic = None
+        if topic_id:
+            try:
+                topic = Topic.objects.get(id=topic_id)
+            except Topic.DoesNotExist:
+                pass
+
+        if not topic:
+            topic = user.current_topic
+
+        # Get correctly solved task IDs
+        correct_ids = QuestionHistory.objects.filter(
+            user=user,
+            is_correct=True
+        ).values_list('question_id', flat=True)
+
+        # Build query for next task
+        query = Question.objects.filter(
+            is_active=True,
+            question_type='code'
+        ).select_related('topic')
+
+        if topic:
+            query = query.filter(topic=topic)
+
+        query = query.filter(difficulty=user.difficulty_level)
+        query = query.exclude(id__in=correct_ids)
+
+        task = query.first()
+
+        if not task:
+            return Response(
+                {'error': 'No code tasks available'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = CodeTaskSerializer(task)
+        return Response(serializer.data)
+
+
+class CodeSubmissionAPIView(APIView):
+    """
+    API view for submitting code challenge solutions.
+    """
+
+    def post(self, request):
+        """Submit a code solution and check it."""
+        serializer = CodeSubmissionSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get validated data
+        user_id = serializer.validated_data['user_id']
+        question_id = serializer.validated_data['question_id']
+        code = serializer.validated_data['code']
+
+        # Get user and question
+        try:
+            user = TelegramUser.objects.get(telegram_id=user_id)
+        except TelegramUser.DoesNotExist:
+            return Response(
+                {'error': 'User not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            task = Question.objects.get(id=question_id, question_type='code')
+        except Question.DoesNotExist:
+            return Response(
+                {'error': 'Task not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Run test cases
+        test_results = []
+        all_passed = True
+
+        if task.test_cases:
+            for i, test_case in enumerate(task.test_cases):
+                try:
+                    # Create namespace with pandas and numpy
+                    namespace = {
+                        '__builtins__': {
+                            'print': print,
+                            'len': len,
+                            'range': range,
+                            'str': str,
+                            'int': int,
+                            'float': float,
+                            'list': list,
+                            'dict': dict,
+                            'tuple': tuple,
+                            'set': set,
+                            'bool': bool,
+                            'True': True,
+                            'False': False,
+                            'None': None,
+                            'enumerate': enumerate,
+                            'zip': zip,
+                            'map': map,
+                            'filter': filter,
+                            'sorted': sorted,
+                            'sum': sum,
+                            'min': min,
+                            'max': max,
+                        }
+                    }
+
+                    exec('import pandas as pd', namespace)
+                    exec('import numpy as np', namespace)
+
+                    # Set up test input if provided
+                    if 'setup' in test_case:
+                        exec(test_case['setup'], namespace)
+
+                    # Execute user's code
+                    exec(code, namespace)
+
+                    # Get the result variable
+                    result_var = test_case.get('result_var', 'result')
+                    actual_output = namespace.get(result_var)
+
+                    # Compare with expected output
+                    expected = test_case['expected_output']
+
+                    # Handle pandas objects comparison
+                    if 'pandas' in str(type(actual_output)):
+                        import pandas as pd
+                        if isinstance(actual_output, pd.DataFrame) or isinstance(actual_output, pd.Series):
+                            passed = actual_output.equals(eval(expected, namespace))
+                        else:
+                            passed = str(actual_output) == str(eval(expected, namespace))
+                    else:
+                        passed = str(actual_output) == str(eval(expected, namespace))
+
+                    test_results.append({
+                        'test_number': i + 1,
+                        'passed': passed,
+                        'expected': str(expected),
+                        'actual': str(actual_output)
+                    })
+
+                    if not passed:
+                        all_passed = False
+
+                except Exception as e:
+                    test_results.append({
+                        'test_number': i + 1,
+                        'passed': False,
+                        'error': f'{type(e).__name__}: {str(e)}'
+                    })
+                    all_passed = False
+
+        # Record submission
+        QuestionHistory.objects.create(
+            user=user,
+            question=task,
+            is_correct=all_passed,
+            user_answer=code
+        )
+
+        response_data = {
+            'success': True,
+            'passed': all_passed,
+            'test_results': test_results,
+        }
+
+        if all_passed:
+            response_data['explanation'] = task.explanation
+
+        response_serializer = CodeSubmissionResponseSerializer(data=response_data)
+        response_serializer.is_valid(raise_exception=True)
+        return Response(response_serializer.data)

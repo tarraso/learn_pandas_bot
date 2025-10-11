@@ -54,6 +54,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 📚 **Основные команды:**
 • /webapp - интерактивное обучение (Mini App)
+• /task - задача по программированию
 • /next - получить следующий вопрос
 • /topic - выбрать тему для изучения
 • /difficulty - выбрать уровень сложности
@@ -76,6 +77,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 /start - Запустить бота
 /webapp - Открыть интерактивное обучение (Mini App)
+/task - Получить задачу по программированию
 /next - Получить следующий вопрос
 /topic - Выбрать тему для изучения
 /difficulty - Установить уровень сложности (beginner/intermediate/advanced)
@@ -424,11 +426,49 @@ async def webapp_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(message, parse_mode='Markdown', reply_markup=reply_markup)
 
 
+async def task_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Send a Python coding task to the user."""
+    user = update.effective_user
+    if not user:
+        return
+
+    telegram_user, _ = await get_or_create_user(user)
+
+    # Check if user has a current topic
+    if not telegram_user.current_topic:
+        await update.message.reply_text(
+            "❗ Сначала выберите тему с помощью /topic"
+        )
+        return
+
+    # Web App URL with task view
+    webapp_url = getattr(settings, 'WEBAPP_URL', 'http://localhost:3000')
+    task_url = f"{webapp_url}?view=task"
+
+    keyboard = [[
+        InlineKeyboardButton(
+            "💻 Решить задачу",
+            web_app=WebAppInfo(url=task_url)
+        )
+    ]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    message = (
+        f"💻 **Задача по программированию**\n\n"
+        f"Тема: **{telegram_user.current_topic.name}**\n"
+        f"Уровень: **{telegram_user.difficulty_level}**\n\n"
+        f"Откройте Mini App для решения задачи с проверкой кода! 👇"
+    )
+
+    await update.message.reply_text(message, parse_mode='Markdown', reply_markup=reply_markup)
+
+
 async def setup_bot_commands(application):
     """Set up bot commands for the menu."""
     await application.bot.set_my_commands([
         BotCommand("start", "Запустить бота"),
         BotCommand("webapp", "Интерактивное обучение"),
+        BotCommand("task", "Задача по программированию"),
         BotCommand("next", "Следующий вопрос"),
         BotCommand("topic", "Выбрать тему"),
         BotCommand("difficulty", "Установить сложность"),
@@ -457,6 +497,7 @@ def main():
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("webapp", webapp_command))
+    application.add_handler(CommandHandler("task", task_command))
     application.add_handler(CommandHandler("next", next_question))
     application.add_handler(CommandHandler("topic", topic_command))
     application.add_handler(CommandHandler("difficulty", difficulty_command))
