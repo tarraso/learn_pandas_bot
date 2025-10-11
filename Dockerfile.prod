@@ -7,8 +7,8 @@ WORKDIR /webapp
 # Copy package files
 COPY webapp/package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including devDependencies for build)
+RUN npm ci
 
 # Copy webapp source
 COPY webapp/ ./
@@ -38,9 +38,9 @@ RUN pip install --no-cache-dir poetry
 # Copy Poetry files
 COPY pyproject.toml poetry.lock* ./
 
-# Install Python dependencies (production only)
+# Install Python dependencies (production only, without installing the project itself)
 RUN poetry config virtualenvs.create false && \
-    poetry install --without dev --no-interaction --no-ansi
+    poetry install --without dev --no-root --no-interaction --no-ansi
 
 # Copy project
 COPY . .
