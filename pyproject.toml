@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "questions"}, {include = "bot"}, {include = "pandas_bot"}]
 
 [tool.poetry.dependencies]
-python = ">=3.13,<4.0"
+python = "^3.10"
 Django = "5.2"
 python-telegram-bot = "^22.5"
 dj-database-url = "2.3.0"
