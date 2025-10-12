@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Editor from '@monaco-editor/react'
 import WebApp from '@twa-dev/sdk'
-import { API_URL } from '../config'
+import { API_BASE } from '../config'
 import './PythonTask.css'
 
 function PythonTask({ userId }) {
@@ -21,7 +21,7 @@ function PythonTask({ userId }) {
 
     try {
       setLoading(true)
-      const response = await fetch(`${API_URL}/code/task/?user_id=${userId}`)
+      const response = await fetch(`${API_BASE}/code/task/?user_id=${userId}`)
       const data = await response.json()
 
       if (response.ok) {
@@ -47,7 +47,7 @@ function PythonTask({ userId }) {
     setResult(null)
 
     try {
-      const response = await fetch(`${API_URL}/code/submit/`, {
+      const response = await fetch(`${API_BASE}/code/submit/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
