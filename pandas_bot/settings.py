@@ -17,7 +17,8 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key-change-this-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+# Defaults to False for safety
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
@@ -70,9 +71,13 @@ WSGI_APPLICATION = 'pandas_bot.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# For production, DATABASE_URL must be set in environment
+if os.environ.get('DJANGO_ENV') == 'production' and not os.environ.get('DATABASE_URL'):
+    raise ValueError("DATABASE_URL must be set in production environment")
+
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://user:password@localhost:5432/pandas_bot_db',
+        default='sqlite:///db.sqlite3',  # SQLite for local development only
         conn_max_age=600
     )
 }
@@ -132,16 +137,17 @@ LOGGING = {
 }
 
 # CORS settings for Mini App
+# Parse additional origins from environment
+additional_origins = os.environ.get('CORS_ADDITIONAL_ORIGINS', '').split(',') if os.environ.get('CORS_ADDITIONAL_ORIGINS') else []
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     NGROK_URL,
-    'http://94.72.140.27:8000',
-    'http://94.72.140.27:3000',
-    'http://94.72.140.27',
-]
+] + [origin.strip() for origin in additional_origins if origin.strip()]
+
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL', 'False') == 'True'  # For development
+# Never allow all origins - removed CORS_ALLOW_ALL option for security
 
 # Django REST Framework
 REST_FRAMEWORK = {
@@ -152,7 +158,7 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.AllowAny',  # Individual views override this
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,

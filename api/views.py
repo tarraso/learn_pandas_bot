@@ -1,17 +1,12 @@
 """API views for Telegram Mini App."""
-import io
-import sys
-from contextlib import redirect_stdout, redirect_stderr
+import json
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from asgiref.sync import sync_to_async
-import json
 
 from questions.models import Topic, Question
 from bot.models import TelegramUser, QuestionHistory
-from bot.utils import get_next_question as get_next_question_util
 
 
 @csrf_exempt
@@ -84,7 +79,6 @@ def next_question_view(request):
     })
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def answer_question_view(request):
     """Submit answer to question."""
@@ -122,68 +116,3 @@ def answer_question_view(request):
     })
 
 
-@csrf_exempt
-@require_http_methods(["POST"])
-def run_code_view(request):
-    """Execute Python pandas code safely."""
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-
-    code = data.get('code', '')
-
-    if not code:
-        return JsonResponse({'error': 'No code provided'}, status=400)
-
-    # Capture stdout and stderr
-    stdout_capture = io.StringIO()
-    stderr_capture = io.StringIO()
-
-    try:
-        # Create a restricted namespace
-        namespace = {
-            '__builtins__': {
-                'print': print,
-                'len': len,
-                'range': range,
-                'str': str,
-                'int': int,
-                'float': float,
-                'list': list,
-                'dict': dict,
-                'tuple': tuple,
-                'set': set,
-                'True': True,
-                'False': False,
-                'None': None,
-            }
-        }
-
-        # Import pandas in namespace
-        exec('import pandas as pd', namespace)
-        exec('import numpy as np', namespace)
-
-        # Execute code
-        with redirect_stdout(stdout_capture), redirect_stderr(stderr_capture):
-            exec(code, namespace)
-
-        output = stdout_capture.getvalue()
-        errors = stderr_capture.getvalue()
-
-        if errors:
-            return JsonResponse({
-                'success': False,
-                'error': errors
-            })
-
-        return JsonResponse({
-            'success': True,
-            'output': output or 'Code executed successfully (no output)'
-        })
-
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': f'{type(e).__name__}: {str(e)}'
-        })

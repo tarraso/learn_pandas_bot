@@ -64,26 +64,6 @@ class AnswerSubmissionSerializer(serializers.Serializer):
         return value
 
 
-class CodeExecutionSerializer(serializers.Serializer):
-    """Serializer for code execution requests."""
-    code = serializers.CharField()
-
-    def validate_code(self, value):
-        """Validate code is not empty and within size limits."""
-        if not value.strip():
-            raise serializers.ValidationError("Code cannot be empty")
-        if len(value) > 10000:
-            raise serializers.ValidationError("Code is too long (max 10000 characters)")
-        return value
-
-
-class CodeExecutionResponseSerializer(serializers.Serializer):
-    """Serializer for code execution response."""
-    success = serializers.BooleanField()
-    output = serializers.CharField(required=False)
-    error = serializers.CharField(required=False)
-
-
 class UserStatsSerializer(serializers.Serializer):
     """Serializer for user statistics."""
     total_questions = serializers.IntegerField()
@@ -118,25 +98,3 @@ class CodeTaskSerializer(serializers.ModelSerializer):
         ]
 
 
-class CodeSubmissionSerializer(serializers.Serializer):
-    """Serializer for code challenge submission."""
-    user_id = serializers.IntegerField()
-    question_id = serializers.IntegerField()
-    code = serializers.CharField()
-
-    def validate_code(self, value):
-        """Validate code is not empty and within size limits."""
-        if not value.strip():
-            raise serializers.ValidationError("Code cannot be empty")
-        if len(value) > 10000:
-            raise serializers.ValidationError("Code is too long (max 10000 characters)")
-        return value
-
-
-class CodeSubmissionResponseSerializer(serializers.Serializer):
-    """Serializer for code submission response."""
-    success = serializers.BooleanField()
-    passed = serializers.BooleanField()
-    test_results = serializers.ListField(child=serializers.DictField())
-    explanation = serializers.CharField(required=False)
-    error = serializers.CharField(required=False)

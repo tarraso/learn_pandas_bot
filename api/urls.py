@@ -14,8 +14,6 @@ urlpatterns = [
     # Custom API views
     path('questions/next/', views_drf.QuestionAPIView.as_view(), name='next_question'),
     path('questions/answer/', views_drf.AnswerQuestionAPIView.as_view(), name='answer_question'),
-    path('code/execute/', views_drf.CodeExecutionAPIView.as_view(), name='execute_code'),
     path('code/task/', views_drf.CodeTaskAPIView.as_view(), name='code_task'),
-    path('code/submit/', views_drf.CodeSubmissionAPIView.as_view(), name='code_submit'),
     path('users/stats/', views_drf.UserStatsAPIView.as_view(), name='user_stats'),
 ]
