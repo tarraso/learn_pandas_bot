@@ -292,10 +292,11 @@ async def handle_answer_callback(update: Update, context: ContextTypes.DEFAULT_T
     if question.documentation_link:
         response += f"📖 [Документация Pandas]({question.documentation_link})"
 
-    # Add next button
+    # Replace question keyboard with next button (removes old answer options)
     keyboard = [[InlineKeyboardButton("Следующий вопрос →", callback_data="next")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
+    # Edit message: replace question text + answer buttons with explanation + next button
     await query.edit_message_text(response, parse_mode='Markdown', reply_markup=reply_markup)
 
 
