@@ -120,6 +120,11 @@ async def send_next_question(update: Update, context: ContextTypes.DEFAULT_TYPE,
     # Determine which message object to use
     if from_callback:
         message_obj = update.callback_query.message
+        # Remove keyboard from previous message (with explanation and "Next" button)
+        try:
+            await update.callback_query.edit_message_reply_markup(reply_markup=None)
+        except Exception as e:
+            logger.debug(f"Could not remove keyboard from previous message: {e}")
     else:
         message_obj = update.message
 
