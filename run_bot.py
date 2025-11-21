@@ -287,15 +287,28 @@ async def handle_answer_callback(update: Update, context: ContextTypes.DEFAULT_T
     _, selected_option = query.data.split(":")
     is_correct = selected_option == question.correct_option
 
+    # Get option texts
+    options_map = {
+        'A': question.option_a,
+        'B': question.option_b,
+        'C': question.option_c,
+        'D': question.option_d
+    }
+
+    selected_text = options_map.get(selected_option, selected_option)
+    correct_text = options_map.get(question.correct_option, question.correct_option)
+
     # Record the answer
     await record_answer(telegram_user, question, selected_option, is_correct)
 
     # Build response
     if is_correct:
         response = "✅ **Правильно!**\n\n"
+        response += f"Ваш ответ: **{selected_option}. {selected_text}**\n\n"
     else:
         response = f"❌ **Неправильно!**\n\n"
-        response += f"Правильный ответ: **{question.correct_option}**\n\n"
+        response += f"Ваш ответ: **{selected_option}. {selected_text}**\n"
+        response += f"Правильный ответ: **{question.correct_option}. {correct_text}**\n\n"
 
     response += f"💡 **Объяснение:**\n{question.explanation}\n\n"
 
