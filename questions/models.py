@@ -18,6 +18,11 @@ class Topic(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_default(cls):
+        """Get the default topic (first by order)."""
+        return cls.objects.order_by('order', 'name').first()
+
 
 class Question(models.Model):
     """Represents a question about pandas"""

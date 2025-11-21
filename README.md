@@ -13,6 +13,7 @@ A Telegram bot designed to help users learn Python Pandas library through intera
 
 - 📚 **Multiple Question Types**: Multiple choice, code challenges, explanations, and fill-in-the-blank
 - 🎯 **Topic-based Learning**: Organize questions by pandas topics (DataFrames, Series, GroupBy, etc.)
+- 🎬 **Auto-assigned Default Topic**: New users automatically start with a default topic
 - 📊 **Progress Tracking**: Track your learning progress and statistics
 - 🔢 **Difficulty Levels**: Choose between beginner, intermediate, and advanced questions
 - 💡 **Detailed Explanations**: Get explanations for each answer with links to official documentation
@@ -58,13 +59,18 @@ make migrate
 # Or: python manage.py migrate
 ```
 
-5. Create a superuser (for Django admin):
+5. Ensure at least one topic exists (required for default topic assignment):
+```bash
+python manage.py ensure_default_topic
+```
+
+6. Create a superuser (for Django admin):
 ```bash
 make createsuperuser
 # Or: python manage.py createsuperuser
 ```
 
-6. Run the bot:
+7. Run the bot:
 ```bash
 make run
 # Or: python run_bot.py

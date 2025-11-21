@@ -9,6 +9,9 @@ from questions.models import Question, Topic
 @sync_to_async
 def get_or_create_user(telegram_user):
     """Get or create a TelegramUser from telegram.User object."""
+    # Get default topic (may be None if no topics exist)
+    default_topic = Topic.get_default()
+    
     user, created = TelegramUser.objects.select_related('current_topic').get_or_create(
         telegram_id=telegram_user.id,
         defaults={
@@ -16,7 +19,8 @@ def get_or_create_user(telegram_user):
             'first_name': telegram_user.first_name,
             'last_name': telegram_user.last_name,
             'language_code': telegram_user.language_code,
-            'is_bot': telegram_user.is_bot
+            'is_bot': telegram_user.is_bot,
+            'current_topic': default_topic  # Will be None if no topics exist
         }
     )
     # If not created, fetch with select_related

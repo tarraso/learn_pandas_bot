@@ -65,7 +65,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 """
 
     if created:
-        welcome_message += "\n✨ Вы успешно зарегистрированы!"
+        if telegram_user.current_topic:
+            welcome_message += f"\n\n✨ Вы успешно зарегистрированы!\n📖 Ваша начальная тема: **{telegram_user.current_topic.name}**"
+        else:
+            welcome_message += "\n\n✨ Вы успешно зарегистрированы!\n⚠️ Пока нет доступных тем. Свяжитесь с администратором."
 
     await update.message.reply_text(welcome_message, parse_mode='Markdown')
 
@@ -91,9 +94,9 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 2. В Mini App вы получите доступ к документации и интерактивным вопросам
 
 **Вариант 2: Быстрое тестирование**
-1. Выберите тему с помощью /topic
-2. Установите уровень сложности с помощью /difficulty
-3. Получайте вопросы с помощью /next
+1. Начните с /next - у вас уже есть тема по умолчанию!
+2. При желании смените тему с помощью /topic
+3. Установите уровень сложности с помощью /difficulty
 4. Отвечайте на вопросы, нажимая на кнопки
 5. Отслеживайте свой прогресс с помощью /stats
 
@@ -128,11 +131,18 @@ async def send_next_question(update: Update, context: ContextTypes.DEFAULT_TYPE,
     else:
         message_obj = update.message
 
-    # Check if user has a current topic
+    # Check if user has a current topic (should always have default, but check anyway)
     if not telegram_user.current_topic:
-        await message_obj.reply_text(
-            "❗ Сначала выберите тему с помощью /topic"
-        )
+        # Check if any topics exist
+        topics = await get_all_topics()
+        if not topics:
+            await message_obj.reply_text(
+                "⚠️ В боте пока нет доступных тем. Свяжитесь с администратором."
+            )
+        else:
+            await message_obj.reply_text(
+                "❗ У вас не установлена тема. Используйте /topic для выбора темы."
+            )
         return
 
     # Check if user has viewed documentation for current topic
@@ -442,9 +452,16 @@ async def task_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Check if user has a current topic
     if not telegram_user.current_topic:
-        await update.message.reply_text(
-            "❗ Сначала выберите тему с помощью /topic"
-        )
+        # Check if any topics exist
+        topics = await get_all_topics()
+        if not topics:
+            await update.message.reply_text(
+                "⚠️ В боте пока нет доступных тем. Свяжитесь с администратором."
+            )
+        else:
+            await update.message.reply_text(
+                "❗ У вас не установлена тема. Используйте /topic для выбора темы."
+            )
         return
 
     # Web App URL with task view
