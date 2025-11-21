@@ -8,7 +8,7 @@ from .base import *
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.ngrok-free.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.ngrok-free.app', 'pandadev.taras.rocks']
 
 # Database - use SQLite for development or PostgreSQL if DATABASE_URL is set
 DATABASES = {
